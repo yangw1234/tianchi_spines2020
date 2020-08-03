@@ -55,6 +55,6 @@ x = [np.zeros(shape=shape, dtype=dtype) for shape, dtype in zip(shapes_i, dtypes
 y = [np.zeros(shape=(data_size))] * 14
 y = []
 
-model.fit(x, y)
+model.keras_model.fit(x, y)
 
 
