@@ -14,20 +14,20 @@ import sys
 import math
 import random
 import numpy as np
-import cv2
 import pandas as pd
 import json
 import dicomutil
 
 # Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
+dir_path = os.path.dirname(os.path.realpath(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(dir_path, "../../"))
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn.config import Config
 from mrcnn import utils
 
-
+import cv2
 class SpinesConfig(Config):
     """Configuration for training on the toy shapes dataset.
     Derives from the base Config class and overrides values specific
@@ -94,13 +94,13 @@ class SpinesDataset(utils.Dataset):
         # actual images. Images are generated on the fly in load_image().
 
         if(datatype=='train'):
-            resultfile = 'D:/git/git_hub/tianchi/202006/sample_result.csv'
+            resultfile = ROOT_DIR + '/data/sample_result.csv'
         elif (datatype == 'val'):
-            resultfile = 'D:/git/git_hub/tianchi/202006/sample_result_val.csv'
+            resultfile = ROOT_DIR + '/data/sample_result_val.csv'
         elif (datatype == 'test'):
-            resultfile = 'D:/git/git_hub/tianchi/202006/sample_result_test.csv'
+            resultfile = ROOT_DIR + '/data/sample_result_test.csv'
         else:#默认train
-            resultfile = 'D:/git/git_hub/tianchi/202006/sample_result.csv'
+            resultfile = ROOT_DIR + '/data/sample_result.csv'
         #resultfile = 'D:/tianchi/202006/sample_result.csv'
 
         csv_data = pd.read_csv(resultfile, index_col='dcmpath')
@@ -109,7 +109,8 @@ class SpinesDataset(utils.Dataset):
         for index, row in csv_data.iterrows():
             #print('第几行：', i)
             #print(index)#文件路径
-            image = dicomutil.dicom2array(index)
+            path = os.path.join(ROOT_DIR, "data", index)
+            image = dicomutil.dicom2array(path)
             width=image.shape[1]
             height=image.shape[0]
             #print('--points---')
@@ -135,6 +136,7 @@ class SpinesDataset(utils.Dataset):
         """
         info = self.image_info[image_id]
         path = info['path']
+        path = os.path.join(ROOT_DIR, "data", path)
         #print('path:',path)
         image = dicomutil.dicom2array(path)
         imageenhance = info['imageenhance']

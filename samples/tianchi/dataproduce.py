@@ -17,6 +17,12 @@ jsonPath = r'D:\git\git_hub\tianchi\202006\lumbar_train51_annotation.json'
 #resultfile = 'D:/git/git_hub/tianchi/202006/sample_result.csv'
 resultfile = 'D:/git/git_hub/tianchi/202006/sample_result_val.csv'
 #resultfile = 'D:/tianchi/202006/sample_result_val.csv'
+trainPath = "/home/yang/sources/tianchi_spines2020/data/train"
+jsonPath = "/home/yang/sources/tianchi_spines2020/data/lumbar_train51_annotation.json"
+resultfile = "/home/yang/sources/tianchi_spines2020/data/sample_result_val.csv"
+trainPath = "/home/yang/sources/tianchi_spines2020/data/lumbar_train150"
+jsonPath = "/home/yang/sources/tianchi_spines2020/data/lumbar_train150_annotation.json"
+resultfile = "/home/yang/sources/tianchi_spines2020/data/sample_result.csv"
 
 # studyUid,seriesUid,instanceUid,annotation
 annotation_info = pd.DataFrame(columns=('studyUid','seriesUid','instanceUid','annotation'))
