@@ -34,6 +34,7 @@ assert LooseVersion(keras.__version__) >= LooseVersion('2.0.8')
 
 from tensorflow.keras.mixed_precision import experimental as mixed_precision
 policy = mixed_precision.Policy('mixed_bfloat16')
+# policy = mixed_precision.Policy('float32')
 # mixed_precision.set_policy(policy)
 
 ############################################################
@@ -193,7 +194,7 @@ def resnet_graph(input_image, architecture, stage5=False, train_bn=True):
     # Stage 1
     x = KL.ZeroPadding2D((3, 3), dtype=policy)(input_image)
     x = KL.Conv2D(64, (7, 7), strides=(2, 2), name='conv1', use_bias=True, dtype=policy)(x)
-    x = KL.BatchNorm(name='bn_conv1')(x, training=train_bn)
+    x = BatchNorm(name='bn_conv1')(x, training=train_bn)
     x = KL.Activation('relu', dtype=policy)(x)
     C1 = x = KL.MaxPooling2D((3, 3), strides=(2, 2), padding="same", dtype=policy)(x)
     # Stage 2

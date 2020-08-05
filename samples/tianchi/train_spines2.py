@@ -18,6 +18,11 @@ import numpy as np
 
 import spines
 
+from zoo import init_nncontext
+from zoo.tfpark import KerasModel
+
+sc = init_nncontext()
+
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
 
@@ -45,16 +50,43 @@ optimizer = tf.keras.optimizers.SGD(
     
 model.keras_model.compile(optimizer=optimizer, loss=[None] * 14)
 
-data_size = 100
+data_size = 200
 
 import numpy as np
-dtypes_i = (np.float32, np.int64, np.int32, np.float64, np.int32, np.int32, np.bool)
-shapes_i = ((data_size, 512, 512, 1), (data_size, 21), (data_size, 65472, 1), (data_size, 256, 4), (data_size, 100), (data_size, 100, 4), (data_size, 56, 56, 100))
 
-x = [np.zeros(shape=shape, dtype=dtype) for shape, dtype in zip(shapes_i, dtypes_i)]
-y = [np.zeros(shape=(data_size))] * 14
+train_data = np.load("../../data/train.npy", allow_pickle=True)
+
+keys = ["images", "image_meta", "rpn_match", "rpn_bbox", "gt_class_ids", "gt_boxes_nd", "gt_masks_nd"]
+x = [train_data.item()[key] for key in keys]
 y = []
 
-model.keras_model.fit(x, y)
+# import numpy as np
+# dtypes_i = (np.float32, np.int64, np.int32, np.float64, np.int32, np.int32, np.bool)
+# shapes_i = ((data_size, 512, 512, 1), (data_size, 21), (data_size, 65472, 1), (data_size, 256, 4), (data_size, 100), (data_size, 100, 4), (data_size, 56, 56, 100))
+# 
+# x = [np.zeros(shape=shape, dtype=dtype) for shape, dtype in zip(shapes_i, dtypes_i)]
+# y = []
+# 
+# model.keras_model.fit(x, y)
+# exit(0)
+tfpark_model = KerasModel(model.keras_model)
+
+loss_names = [
+            "rpn_class_loss",  "rpn_bbox_loss",
+            "mrcnn_class_loss", "mrcnn_bbox_loss", "mrcnn_mask_loss"]
+
+# Add metrics for losses
+# for name in loss_names:
+#     if name in model.keras_model.metrics_names:
+#         continue
+#     layer = model.keras_model.get_layer(name)
+#     model.keras_model.metrics_names.append(name)
+#     loss = (
+#         tf.reduce_mean(layer.output, keepdims=True)
+#         * self.config.LOSS_WEIGHTS.get(name, 1.))
+#     tfpark_model.add_metric(loss, name=name)
+
+tfpark_model.fit(x, y, batch_size=32, distributed=True, epochs=1)
+
 
 
