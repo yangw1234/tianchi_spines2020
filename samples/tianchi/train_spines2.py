@@ -60,15 +60,6 @@ keys = ["images", "image_meta", "rpn_match", "rpn_bbox", "gt_class_ids", "gt_box
 x = [train_data.item()[key] for key in keys]
 y = []
 
-# import numpy as np
-# dtypes_i = (np.float32, np.int64, np.int32, np.float64, np.int32, np.int32, np.bool)
-# shapes_i = ((data_size, 512, 512, 1), (data_size, 21), (data_size, 65472, 1), (data_size, 256, 4), (data_size, 100), (data_size, 100, 4), (data_size, 56, 56, 100))
-# 
-# x = [np.zeros(shape=shape, dtype=dtype) for shape, dtype in zip(shapes_i, dtypes_i)]
-# y = []
-# 
-# model.keras_model.fit(x, y)
-# exit(0)
 tfpark_model = KerasModel(model.keras_model)
 
 loss_names = [
@@ -85,8 +76,8 @@ loss_names = [
 #         tf.reduce_mean(layer.output, keepdims=True)
 #         * self.config.LOSS_WEIGHTS.get(name, 1.))
 #     tfpark_model.add_metric(loss, name=name)
-
-tfpark_model.fit(x, y, batch_size=32, distributed=True, epochs=1)
+# 
+tfpark_model.fit(x, y, batch_size=32*4, distributed=True, epochs=3, session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=24))
 
 
 
