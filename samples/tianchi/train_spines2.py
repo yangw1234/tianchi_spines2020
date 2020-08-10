@@ -83,7 +83,7 @@ for name in loss_names:
 
 tfpark_model.add_metric(model.keras_model.total_loss, name="total_loss")
 
-tfpark_model.fit(dataset, batch_size=32*4, distributed=True, epochs=30, session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=24))
+tfpark_model.fit(dataset, batch_size=32*2, distributed=True, epochs=30, session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=24))
 
 
 

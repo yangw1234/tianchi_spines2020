@@ -1,7 +1,7 @@
 export KMP_BLOCKTIME=1
 export KMP_AFFINITY=granularity=fine,compact,1,0
 export OMP_NUM_THREADS=24
-export MASTER=local[4]
+export MASTER=local[2]
 export SPARK_DRIVER_MEMORY=100g
 
 export ANALYTICS_ZOO_HOME=/home/cpx/yang/dist
