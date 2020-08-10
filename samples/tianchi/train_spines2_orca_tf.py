@@ -45,10 +45,10 @@ y = []
 val_x = [val_data.item()[key] for key in keys]
 val_y = []
 
-import zoo.orca.data as orca_data
+from zoo.orca.data.shard import XShards
 
-train_x_shards = orca_data.partition({"x": tuple(x), "y": tuple(y)})
-val_x_shards = orca_data.partition({"x": tuple(val_x), "y": tuple(val_y)})
+train_x_shards = XShards.partition({"x": tuple(x), "y": tuple(y)})
+val_x_shards = XShards.partition({"x": tuple(val_x), "y": tuple(val_y)})
 
 model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
