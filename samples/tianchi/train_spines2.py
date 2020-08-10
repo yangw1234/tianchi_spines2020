@@ -50,7 +50,7 @@ val_y = []
 
 from zoo.tfpark import TFDataset
 
-dataset = TFDataset.from_ndarrays((x, y), batch_size=8, val_tensors=(val_x, val_y), hard_code_batch_size=True)
+dataset = TFDataset.from_ndarrays((x, y), batch_size=32*2, val_tensors=(val_x, val_y), hard_code_batch_size=True)
 
 model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
@@ -83,7 +83,7 @@ for name in loss_names:
 
 tfpark_model.add_metric(model.keras_model.total_loss, name="total_loss")
 
-tfpark_model.fit(dataset, batch_size=32*2, distributed=True, epochs=30, session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=24))
+tfpark_model.fit(dataset, distributed=True, epochs=30, session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=24))
 
 
 
