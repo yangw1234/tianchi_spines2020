@@ -17,17 +17,6 @@ dataset_val = spines.SpinesDataset()
 dataset_val.load_spines(30, config.IMAGE_SHAPE[0], config.IMAGE_SHAPE[1],'val')
 dataset_val.prepare()
 
-def to_tf_record(dataset, file_name):
-    train_generator = data_generator(dataset_train, config, shuffle=False,
-                                     batch_size=1)
-    dataset_length = len(dataset_train.image_ids)
-    for i in range(dataset_length):
-        (image, i_m, r_m, r_b, gt_c_id, gt_b, gt_m), _ = next(train_generator)
-
-    tf.io.serialize
-
-
-
 def to_ndarrays(dataset, file_name):
     train_generator = data_generator(dataset_train, config, shuffle=False,
                                      batch_size=1)
@@ -78,9 +67,4 @@ def to_ndarrays(dataset, file_name):
 
 to_ndarrays(dataset_train, "train")
 to_ndarrays(dataset_val, "val")
-
-
-
-
-
 
