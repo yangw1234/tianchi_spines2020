@@ -22,9 +22,12 @@ EXECUTOR_MEMORY = "80g"
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), "../../")
 LIB_TF = os.path.join(ROOT_DIR, "tf_libs")
+assert os.path.exists(os.path.join(LIB_TF, "libtensorflow_framework-zoo.so")), f"Cannot found tf_libs, please download and extract it to {LIB_TF}"
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 TRAIN_DATA_PATH = os.path.join(ROOT_DIR, "data/train.npy")
+assert os.path.exists(TRAIN_DATA_PATH), f"Cannot find train data, please use generate_ndarray_data.py to generate train data to {TRAIN_DATA_PATH}"
 VAL_DATA_PATH = os.path.join(ROOT_DIR, "data/val.npy")
+assert os.path.exists(TRAIN_DATA_PATH), f"Cannot find val data, please use generate_ndarray_data.py to generate train data to {VAL_DATA_PATH}"
 sys.path.append(ROOT_DIR)
 
 os.environ["KMP_BLOCKTIME"]="1"
