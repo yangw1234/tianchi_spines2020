@@ -16,7 +16,7 @@ import sys
 
 import spines
 EXECUTOR_NUM = 2
-EXECUTOR_CORES = 24
+EXECUTOR_THREADS = 24
 DRIVER_MEMORY = "10G"
 EXECUTOR_MEMORY = "80g"
 
@@ -29,13 +29,13 @@ sys.path.append(ROOT_DIR)
 
 os.environ["KMP_BLOCKTIME"]="1"
 os.environ["KMP_AFFINITY"]="disabled"
-os.environ["OMP_NUM_THREADS"]=str(EXECUTOR_CORES)
+os.environ["OMP_NUM_THREADS"]=str(EXECUTOR_THREADS)
 
 from zoo import init_spark_standalone
 
 sc = init_spark_standalone(
     num_executors=EXECUTOR_NUM,
-    executor_cores=EXECUTOR_CORES,
+    executor_cores=1, # this parameter will control the number of models in each executor, so we set 1 here. OMP_NUM_THREADS will control the actual number threads used.
     driver_memory=DRIVER_MEMORY,
     executor_memory=EXECUTOR_MEMORY,
     conf={"spark.driver.extraJavaOptions": f"-Djava.library.path={LIB_TF}",
@@ -101,4 +101,4 @@ estimator.fit(data=train_x_shards,
               batch_size=config.BATCH_SIZE * EXECUTOR_NUM,
               validation_data=val_x_shards,
               hard_code_batch_size=True,
-              session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=24))
+              session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=EXECUTOR_THREADS))

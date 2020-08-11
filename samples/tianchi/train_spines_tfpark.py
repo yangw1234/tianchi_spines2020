@@ -13,34 +13,45 @@
 
 import os
 import sys
-import numpy as np
-# from zoo.tfpark import TFDataset
-
 import spines
 
-from zoo import init_nncontext
+EXECUTOR_NUM = 2
+EXECUTOR_THREADS = 24
+DRIVER_MEMORY = "10G"
+EXECUTOR_MEMORY = "80g"
+
+ROOT_DIR = os.path.join(os.path.dirname(__file__), "../../")
+LIB_TF = os.path.join(ROOT_DIR, "tf_libs")
+MODEL_DIR = os.path.join(ROOT_DIR, "logs")
+TRAIN_DATA_PATH = os.path.join(ROOT_DIR, "data/train.npy")
+VAL_DATA_PATH = os.path.join(ROOT_DIR, "data/val.npy")
+sys.path.append(ROOT_DIR)
+
+os.environ["KMP_BLOCKTIME"]="1"
+os.environ["KMP_AFFINITY"]="disabled"
+os.environ["OMP_NUM_THREADS"]=str(EXECUTOR_THREADS)
+
 from zoo.tfpark import KerasModel
+from zoo import init_spark_standalone
 
-sc = init_nncontext()
-
-# Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
+sc = init_spark_standalone(
+    num_executors=EXECUTOR_NUM,
+    executor_cores=1, # this parameter will control the number of models in each executor, so we set 1 here. OMP_NUM_THREADS will control the actual number threads used.
+    driver_memory=DRIVER_MEMORY,
+    executor_memory=EXECUTOR_MEMORY,
+    conf={"spark.driver.extraJavaOptions": f"-Djava.library.path={LIB_TF}",
+          "spark.executor.extraJavaOptions": f"-Djava.library.path={LIB_TF}"}
+)
 
 # Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
 import mrcnn.model as modellib
-
-MODEL_DIR = os.path.join(ROOT_DIR, "logs")
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_spines.h5")
-# Local path to trained weights file
-
 
 config = spines.SpinesConfig()
 config.display()
 
 import numpy as np
-train_data = np.load("../../data/train.npy", allow_pickle=True)
-val_data = np.load("../../data/val.npy", allow_pickle=True)
+train_data = np.load(TRAIN_DATA_PATH, allow_pickle=True)
+val_data = np.load(VAL_DATA_PATH, allow_pickle=True)
 keys = ["images", "image_meta", "rpn_match", "rpn_bbox", "gt_class_ids", "gt_boxes_nd", "gt_masks_nd"]
 x = [train_data.item()[key] for key in keys]
 y = []
@@ -50,7 +61,7 @@ val_y = []
 
 from zoo.tfpark import TFDataset
 
-dataset = TFDataset.from_ndarrays((x, y), batch_size=32*2, val_tensors=(val_x, val_y), hard_code_batch_size=True)
+dataset = TFDataset.from_ndarrays((x, y), batch_size=config.BATCH_SIZE * EXECUTOR_NUM, val_tensors=(val_x, val_y), hard_code_batch_size=True)
 
 model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
@@ -83,7 +94,7 @@ for name in loss_names:
 
 tfpark_model.add_metric(model.keras_model.total_loss, name="total_loss")
 
-tfpark_model.fit(dataset, distributed=True, epochs=30, session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=24))
+tfpark_model.fit(dataset, distributed=True, epochs=30, session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=EXECUTOR_THREADS))
 
 
 
