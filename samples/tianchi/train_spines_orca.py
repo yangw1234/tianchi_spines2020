@@ -34,7 +34,7 @@ os.environ["KMP_BLOCKTIME"]="1"
 os.environ["KMP_AFFINITY"]="disabled"
 os.environ["OMP_NUM_THREADS"]=str(EXECUTOR_THREADS)
 
-from zoo import init_spark_standalone
+from zoo import init_spark_standalone, stop_spark_standalone
 
 sc = init_spark_standalone(
     num_executors=EXECUTOR_NUM,
@@ -105,3 +105,6 @@ estimator.fit(data=train_x_shards,
               validation_data=val_x_shards,
               hard_code_batch_size=True,
               session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=EXECUTOR_THREADS))
+
+
+stop_spark_standalone()

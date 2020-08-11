@@ -35,7 +35,7 @@ os.environ["KMP_AFFINITY"]="disabled"
 os.environ["OMP_NUM_THREADS"]=str(EXECUTOR_THREADS)
 
 from zoo.tfpark import KerasModel
-from zoo import init_spark_standalone
+from zoo import init_spark_standalone, stop_spark_standalone
 
 sc = init_spark_standalone(
     num_executors=EXECUTOR_NUM,
@@ -99,5 +99,5 @@ tfpark_model.add_metric(model.keras_model.total_loss, name="total_loss")
 
 tfpark_model.fit(dataset, distributed=True, epochs=30, session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=EXECUTOR_THREADS))
 
-
+stop_spark_standalone()
 
