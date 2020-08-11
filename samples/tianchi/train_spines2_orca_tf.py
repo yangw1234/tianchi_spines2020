@@ -15,29 +15,42 @@ import os
 import sys
 
 import spines
+EXECUTOR_NUM = 2
+EXECUTOR_CORES = 24
+DRIVER_MEMORY = "10G"
+EXECUTOR_MEMORY = "80g"
 
-from zoo import init_nncontext
+ROOT_DIR = os.path.join(os.path.dirname(__file__), "../../")
+LIB_TF = os.path.join(ROOT_DIR, "tf_libs")
+MODEL_DIR = os.path.join(ROOT_DIR, "logs")
+TRAIN_DATA_PATH = os.path.join(ROOT_DIR, "data/train.npy")
+VAL_DATA_PATH = os.path.join(ROOT_DIR, "data/val.npy")
+sys.path.append(ROOT_DIR)
 
-sc = init_nncontext()
+os.environ["KMP_BLOCKTIME"]="1"
+os.environ["KMP_AFFINITY"]="disabled"
+os.environ["OMP_NUM_THREADS"]=str(EXECUTOR_CORES)
 
-# Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
+from zoo import init_spark_standalone
+
+sc = init_spark_standalone(
+    num_executors=EXECUTOR_NUM,
+    executor_cores=EXECUTOR_CORES,
+    driver_memory=DRIVER_MEMORY,
+    executor_memory=EXECUTOR_MEMORY,
+    conf={"spark.driver.extraJavaOptions": f"-Djava.library.path={LIB_TF}",
+          "spark.executor.extraJavaOptions": f"-Djava.library.path={LIB_TF}"}
+)
 
 # Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
 import mrcnn.model as modellib
-
-MODEL_DIR = os.path.join(ROOT_DIR, "logs")
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_spines.h5")
-# Local path to trained weights file
-
 
 config = spines.SpinesConfig()
 config.display()
 
 import numpy as np
-train_data = np.load("../../data/train.npy", allow_pickle=True)
-val_data = np.load("../../data/val.npy", allow_pickle=True)
+train_data = np.load(TRAIN_DATA_PATH, allow_pickle=True)
+val_data = np.load(VAL_DATA_PATH, allow_pickle=True)
 keys = ["images", "image_meta", "rpn_match", "rpn_bbox", "gt_class_ids", "gt_boxes_nd", "gt_masks_nd"]
 x = [train_data.item()[key] for key in keys]
 y = []
@@ -85,7 +98,7 @@ from zoo.orca.learn.tf.estimator import Estimator
 estimator = Estimator.from_keras(model.keras_model, metrics=metrics, model_dir="./logs")
 estimator.fit(data=train_x_shards,
               epochs=30,
-              batch_size=32*2,
+              batch_size=config.BATCH_SIZE * EXECUTOR_NUM,
               validation_data=val_x_shards,
               hard_code_batch_size=True,
               session_config=tf.ConfigProto(inter_op_parallelism_threads=2, intra_op_parallelism_threads=24))

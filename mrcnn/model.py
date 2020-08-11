@@ -2224,9 +2224,6 @@ class MaskRCNN():
         # Skip gamma and beta weights of batch normalization layers.
         ws = self.keras_model.trainable_weights
 
-        for w in ws:
-            print("weigts dtype is {}".format(w))
-
         reg_losses = [
             keras.regularizers.l2(self.config.WEIGHT_DECAY)(w) / tf.cast(tf.size(w), tf.float32)
             for w in ws
