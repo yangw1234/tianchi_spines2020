@@ -66,20 +66,12 @@ for image_id in image_ids:
     image = dataset_train.load_image(image_id)
     mask, class_ids = dataset_train.load_mask(image_id)
     #visualize.display_top_masks(image, mask, class_ids, dataset_train.class_names)
-# import tensorflow as tf
-# from tensorflow.core.protobuf import rewriter_config_pb2
-# 
-# graph_options = tf.compat.v1.GraphOptions(rewrite_options=rewriter_config_pb2.RewriterConfig(auto_mixed_precision_mkl=rewriter_config_pb2.RewriterConfig.ON))
-# config_proto = tf.compat.v1.ConfigProto(graph_options=graph_options)
-# session = tf.compat.v1.Session(config=config_proto)
-# # session = tf.Session()
-# tf.keras.backend.set_session(session)
 
 model = modellib.MaskRCNN(mode="training", config=config,
                           model_dir=MODEL_DIR)
 
 #训练了一半的话，可以继续加载训练
-# model.load_weights(model_path, by_name=True)
+model.load_weights(model_path, by_name=True)
 
 # model.train(dataset_train, dataset_val,
 #             learning_rate=config.LEARNING_RATE,
