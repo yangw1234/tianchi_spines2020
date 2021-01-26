@@ -14,9 +14,10 @@ https://github.com/fchollet/keras/blob/master/keras/utils/training_utils.py
 """
 
 import tensorflow as tf
-import keras.backend as K
-import keras.layers as KL
-import keras.models as KM
+import tensorflow.keras.backend as K
+import tensorflow.keras.layers as KL
+import tensorflow.keras.models as KM
+import tensorflow.keras as keras
 
 
 class ParallelModel(KM.Model):
@@ -113,9 +114,9 @@ if __name__ == "__main__":
 
     import os
     import numpy as np
-    import keras.optimizers
-    from keras.datasets import mnist
-    from keras.preprocessing.image import ImageDataGenerator
+    import tensorflow.keras.optimizers
+    from tensorflow.keras.datasets import mnist
+    from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
     GPU_COUNT = 2
 
@@ -158,7 +159,7 @@ if __name__ == "__main__":
     # Add multi-GPU support.
     model = ParallelModel(model, GPU_COUNT)
 
-    optimizer = keras.optimizers.SGD(lr=0.01, momentum=0.9, clipnorm=5.0)
+    optimizer = tensorflow.keras.optimizers.SGD(lr=0.01, momentum=0.9, clipnorm=5.0)
 
     model.compile(loss='sparse_categorical_crossentropy',
                   optimizer=optimizer, metrics=['accuracy'])

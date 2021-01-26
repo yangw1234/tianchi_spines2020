@@ -4,7 +4,6 @@ import numpy as np
 import tensorflow as tf
 import matplotlib
 import matplotlib.pyplot as plt
-import keras
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")

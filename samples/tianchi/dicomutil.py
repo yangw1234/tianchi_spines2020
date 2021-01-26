@@ -1,14 +1,5 @@
-import os
-import json
-import glob
 import SimpleITK as sitk
-import pandas as pd
 import numpy as np
-import cv2
-import tensorflow as tf
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-#mpl.use('TkAgg')
 
 def dicom_metainfoall(dicm_path):
     '''
